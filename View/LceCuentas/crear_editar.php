@@ -77,7 +77,7 @@ echo $f->input([
 ]);
 echo $f->input([
     'type' => 'textarea',
-    'name' => 'saldo_acreendor',
+    'name' => 'saldo_acreedor',
     'label' => 'Saldo acreedor',
     'value' => isset($Obj) ? $Obj->saldo_acreedor : '',
     'help' => 'Indicar que significa que la cuenta tenga saldo acreedor',
