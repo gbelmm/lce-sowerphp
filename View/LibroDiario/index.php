@@ -27,6 +27,12 @@ echo $f->input([
     'check' => 'notempty date',
     'help' => 'Hasta cuando buscar',
 ]);
+echo $f->input([
+    'type' => 'select',
+    'name' => 'ver',
+    'label' => 'Ver en',
+    'options' => ['web'=>'Web', 'pdf'=>'PDF'],
+]);
 echo $f->end('Generar libro diario');
 echo '</div>';
 

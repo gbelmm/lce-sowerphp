@@ -34,7 +34,7 @@ class Controller_LibroDiario extends \Controller_App
     /**
      * Acción principal para generar el libro diario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-02-10
+     * @version 2016-02-17
      */
     public function index()
     {
@@ -46,9 +46,18 @@ class Controller_LibroDiario extends \Controller_App
                     'No se encontraron asientos contables para el período seleccionado.', 'info'
                 );
             } else {
-                $this->set([
-                    'asientos' => $asientos
-                ]);
+                if ($_POST['ver']=='web') {
+                    $this->set([
+                        'asientos' => $asientos
+                    ]);
+                } else {
+                    $pdf = new View_Helper_LibroDiario();
+                    $pdf->Contribuyente = $Contribuyente;
+                    $pdf->titulo = 'Libro diario del '.\sowerphp\general\Utility_Date::format($_POST['desde']).' al '.\sowerphp\general\Utility_Date::format($_POST['hasta']);
+                    $pdf->agregar($asientos);
+                    $pdf->Output('libro_diario_'.$Contribuyente->rut.'_'.$_POST['desde'].'_'.$_POST['hasta'].'.pdf', 'D');
+                    exit;
+                }
             }
         }
     }
