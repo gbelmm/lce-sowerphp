@@ -54,12 +54,12 @@ class Model_LceCuentas extends \Model_Plural_App
     /**
      * Método que entrega el listado de cuentas contables
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-02-23
      */
     public function getList()
     {
         return $this->db->getTable ('
-            SELECT codigo AS id, codigo || \' - \' || cuenta AS glosa
+            SELECT codigo AS id, '.$this->db->concat('codigo', ' - ', 'cuenta').' AS glosa
             FROM lce_cuenta
             WHERE contribuyente = :contribuyente AND activa = true
             ORDER BY

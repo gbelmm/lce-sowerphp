@@ -29,7 +29,7 @@ namespace website\Lce;
  * Comentario de la tabla: Plan de cuentas de la empresa (por ejemplo plan de cuentas MiPyme SII)
  * Esta clase permite trabajar sobre un registro de la tabla lce_cuenta
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:50:20
+ * @version 2016-02-23 17:49:28
  */
 class Model_LceCuenta extends \Model_App
 {
@@ -44,13 +44,14 @@ class Model_LceCuenta extends \Model_App
     public $cuenta; ///< Nombre corto de la cuenta: character varying(120) NOT NULL DEFAULT ''
     public $clasificacion; ///< Clasificación de la cuenta (Activo, Pasivo, Patrimonio o Resultado): character varying(3) NOT NULL DEFAULT '' FK:lce_cuenta_clasificacion.codigo
     public $subclasificacion; ///< Clasificación dentro de las de mayor jerarquía, por ejemplo Activo Circulante: character varying(3) NOT NULL DEFAULT '' FK:lce_cuenta_clasificacion.codigo
-    public $oficial; ///< Correspondencia de esta cuenta con una cuenta oficial del SII (para confección de diccionario de cuentas): character varying(16) NULL DEFAULT '' FK:lce_cuenta_oficial.codigo
+    public $oficial; ///< Correspondencia de esta cuenta con una cuenta oficial del SII (para confección de diccionario de cuentas): character varying(16) NOT NULL DEFAULT '' FK:lce_cuenta_oficial.codigo
     public $descripcion; ///< Descripción de la cuenta: text() NOT NULL DEFAULT ''
     public $cargos; ///< Cuando se debe hacer un cargo a la cuenta: text() NULL DEFAULT ''
     public $abonos; ///< Cuando se debe hacer un abono a la cuenta: text() NULL DEFAULT ''
     public $saldo_deudor; ///< Que representa el saldo deudor de la cuenta: text() NULL DEFAULT ''
     public $saldo_acreedor; ///< Que representa el saldo acreedor de la cuenta: text() NULL DEFAULT ''
     public $activa; ///< Indica si la cuenta se puede o no usar: boolean() NOT NULL DEFAULT 'true'
+    public $codigo_otro; ///< character varying(16) NULL DEFAULT ''
 
     // Información de las columnas de la tabla en la base de datos
     public static $columnsInfo = array(
@@ -114,7 +115,7 @@ class Model_LceCuenta extends \Model_App
             'comment'   => 'Correspondencia de esta cuenta con una cuenta oficial del SII (para confección de diccionario de cuentas)',
             'type'      => 'character varying',
             'length'    => 16,
-            'null'      => true,
+            'null'      => false,
             'default'   => '',
             'auto'      => false,
             'pk'        => false,
@@ -182,6 +183,17 @@ class Model_LceCuenta extends \Model_App
             'length'    => null,
             'null'      => false,
             'default'   => 'true',
+            'auto'      => false,
+            'pk'        => false,
+            'fk'        => null
+        ),
+        'codigo_otro' => array(
+            'name'      => 'Otro',
+            'comment'   => '',
+            'type'      => 'character varying',
+            'length'    => 16,
+            'null'      => true,
+            'default'   => '',
             'auto'      => false,
             'pk'        => false,
             'fk'        => null

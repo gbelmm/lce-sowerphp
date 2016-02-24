@@ -91,6 +91,13 @@ echo $f->input([
     'check' => 'notempty',
     'help' => 'Indica si la cuenta está o no disponible para su uso',
 ]);
+echo $f->input([
+    'name' => 'codigo_otro',
+    'label' => 'Otro código',
+    'value' => isset($Obj) ? $Obj->codigo_otro : '',
+    'help' => 'Otro código de la cuenta contable (por ejemplo de la empresa contable)',
+    'attr' => 'maxlength="16"',
+]);
 echo $f->end('Guardar');
 ?>
 <div style="float:left;color:red">* campo es obligatorio</div>

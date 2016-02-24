@@ -31,14 +31,14 @@ namespace website\Lce;
  * Esta clase permite controlar las acciones entre el modelo y vista para la
  * tabla lce_cuenta
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
- * @version 2016-02-09
+ * @version 2016-02-23
  */
 class Controller_LceCuentas extends \Controller_Maintainer
 {
 
     protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
     protected $columnsView = [
-        'listar'=>['codigo', 'cuenta', 'clasificacion', 'descripcion', 'activa']
+        'listar'=>['codigo', 'cuenta', 'clasificacion', 'descripcion', 'codigo_otro', 'activa']
     ]; ///< Columnas que se deben mostrar en las vistas
 
     /**
@@ -122,6 +122,72 @@ class Controller_LceCuentas extends \Controller_Maintainer
             'Contribuyente' => $Contribuyente,
             'cuentas' => (new Model_LceCuentas())->setContribuyente($Contribuyente->rut)->getDiccionario(),
         ]);
+    }
+
+    /**
+     * Acción que permite importar el plan de cuentas contables desde un archivo
+     * CSV
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-02-23
+     */
+    public function importar()
+    {
+        if (isset($_POST['submit'])) {
+            // verificar que se haya podido subir el archivo con el libro
+            if (!isset($_FILES['archivo']) or $_FILES['archivo']['error']) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Ocurrió un error al subir el plan de cuentas', 'error'
+                );
+                return;
+            }
+            // agregar cada cuenta al plan
+            $Contribuyente = $this->getContribuyente();
+            $cuentas = \sowerphp\general\Utility_Spreadsheet::read($_FILES['archivo']);
+            array_shift($cuentas);
+            $resumen = ['nuevas'=>[], 'editadas'=>[], 'error'=>[]];
+            $cols = ['codigo', 'cuenta', 'clasificacion', 'subclasificacion', 'oficial', 'descripcion', 'cargos', 'abonos', 'saldo_deudor', 'saldo_acreedor', 'activa', 'codigo_otro'];
+            $n_cols = count($cols);
+            foreach ($cuentas as $c) {
+                // crear objeto
+                $LceCuenta = new Model_LceCuenta();
+                $LceCuenta->contribuyente = $Contribuyente->rut;
+                for ($i=0; $i<$n_cols; $i++) {
+                    $LceCuenta->{$cols[$i]} = $c[$i];
+                }
+                // corregir cuenta oficial (agregar puntos si se pasó)
+                if ($LceCuenta->oficial and !strpos($LceCuenta->oficial, '.')) {
+                    $LceCuenta->oficial = substr($LceCuenta->oficial, 0, -3).'.'.substr($LceCuenta->oficial, -3);
+                }
+                // guardar
+                try {
+                    $existia = $LceCuenta->exists();
+                    if ($LceCuenta->save()) {
+                        if ($existia)
+                            $resumen['editadas'][] = $LceCuenta->codigo;
+                        else
+                            $resumen['nuevas'][] = $LceCuenta->codigo;
+                    } else {
+                        $resumen['error'][] = $LceCuenta->codigo;
+                    }
+                } catch (\sowerphp\core\Exception_Model_Datasource_Database $e) {
+                    $resumen['error'][] = $LceCuenta->codigo;
+                }
+            }
+            // mostrar errores o redireccionar
+            if (!empty($resumen['error'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'No se pudieron guardar todas las cuentas:<br/>- nuevas: '.implode(', ', $resumen['nuevas']).
+                        '<br/>- editadas: '.implode(', ', $resumen['editadas']).
+                        '<br/>- con error: '.implode(', ', $resumen['error']),
+                    ((empty($resumen['nuevas']) and empty($resumen['editadas'])) ? 'error' : 'warning')
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Se importó el plan de cuentas contable', 'ok'
+                );
+                $this->redirect('/lce/lce_cuentas/listar');
+            }
+        }
     }
 
     /**

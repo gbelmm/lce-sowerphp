@@ -1,3 +1,4 @@
+<a href="<?=$_base?>/lce/lce_cuentas/importar" title="Importar plan de cuentas contables desde archivo CSV" class="btn btn-default pull-right"><span class="fa fa-upload"></span> Importar CSV</a>
 <h1>Mantenedor plan de cuentas contables</h1>
 <p><?=$comment?></p>
 <?php

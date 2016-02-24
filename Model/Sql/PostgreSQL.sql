@@ -46,6 +46,7 @@ CREATE TABLE lce_cuenta (
     saldo_deudor TEXT,
     saldo_acreedor TEXT,
     activa BOOLEAN NOT NULL DEFAULT true,
+    codigo_otro CHARACTER VARYING (16) NOT NULL,
     CONSTRAINT lce_cuenta_pkey PRIMARY KEY (contribuyente, codigo),
     CONSTRAINT lce_cuenta_contribuyente_fk FOREIGN KEY (contribuyente)
                 REFERENCES contribuyente (rut) MATCH FULL
@@ -76,6 +77,7 @@ COMMENT ON COLUMN lce_cuenta.abonos IS 'Cuando se debe hacer un abono a la cuent
 COMMENT ON COLUMN lce_cuenta.saldo_deudor IS 'Que representa el saldo deudor de la cuenta';
 COMMENT ON COLUMN lce_cuenta.saldo_acreedor IS 'Que representa el saldo acreedor de la cuenta';
 COMMENT ON COLUMN lce_cuenta.activa IS 'Indica si la cuenta se puede o no usar';
+COMMENT ON COLUMN lce_cuenta.codigo_otro IS 'Correspondencia de esta cuenta con otra cuenta (por ejemplo de una empresa de contabilidad)';
 
 DROP TABLE IF EXISTS lce_asiento CASCADE;
 CREATE TABLE lce_asiento (
