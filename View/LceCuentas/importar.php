@@ -1,4 +1,10 @@
-<a href="<?=$_base?>/lce/lce_cuentas/listar" title="Volver al plan de cuentas contables" class="pull-right"><span class="btn btn-default">Volver al plan de cuentas</span></a>
+<ul class="nav nav-pills pull-right">
+    <li>
+        <a href="<?=$_base?>/lce/lce_cuentas/listar" title="Volver al plan de cuentas contables">
+            Volver al plan de cuentas
+        </a>
+    </li>
+</ul>
 <h1>Importar plan de cuentas contable desde archivo CSV</h1>
 <?php
 $f = new \sowerphp\general\View_Helper_Form();
