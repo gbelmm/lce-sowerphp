@@ -38,7 +38,7 @@ class Controller_LceAsientos extends \Controller_Maintainer
 
     protected $namespace = __NAMESPACE__; ///< Namespace del controlador y modelos asociados
     protected $columnsView = [
-        'listar'=>['codigo', 'fecha', 'glosa', 'anulado']
+        'listar'=>['periodo', 'asiento', 'fecha', 'glosa', 'anulado']
     ]; ///< Columnas que se deben mostrar en las vistas
 
     /**
@@ -56,13 +56,12 @@ class Controller_LceAsientos extends \Controller_Maintainer
     /**
      * Acción para crear un asiento contable
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-10
+     * @version 2016-03-03
      */
     public function crear()
     {
         $Contribuyente = $this->getContribuyente();
         $_POST['contribuyente'] = $Contribuyente->rut;
-        $_POST['creado'] = date('Y-m-d H:i:s');
         $_POST['usuario'] = $this->Auth->User->id;
         $Cuentas = (new \website\Lce\Model_LceCuentas())->setContribuyente($Contribuyente->rut);
         $this->set([
@@ -77,11 +76,15 @@ class Controller_LceAsientos extends \Controller_Maintainer
             $Asiento = new Model_LceAsiento();
             $Asiento->set($_POST);
             try {
-                $Asiento->save();
-                $Asiento->saveDetalle($this->obtenerDetallePost());
-                \sowerphp\core\Model_Datasource_Session::message(
-                    'Registro creado', 'ok'
-                );
+                if ($Asiento->save() and $Asiento->saveDetalle($this->obtenerDetallePost())) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro creado', 'ok'
+                    );
+                } else {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro no creado', 'error'
+                    );
+                }
             } catch (\Exception $e) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Registro no creado: '.$e->getMessage(), 'error'
@@ -98,15 +101,14 @@ class Controller_LceAsientos extends \Controller_Maintainer
     /**
      * Acción para editar un asiento contable
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-10
+     * @version 2016-03-03
      */
-    public function editar($asiento)
+    public function editar($periodo, $asiento = null)
     {
         $Contribuyente = $this->getContribuyente();
         $_POST['contribuyente'] = $Contribuyente->rut;
-        $_POST['modificado'] = date('Y-m-d H:i:s');
         $_POST['usuario'] = $this->Auth->User->id;
-        $Asiento = new Model_LceAsiento($Contribuyente->rut, $asiento);
+        $Asiento = new Model_LceAsiento($Contribuyente->rut, $periodo, $asiento);
         $Cuentas = (new \website\Lce\Model_LceCuentas())->setContribuyente($Contribuyente->rut);
         $this->set([
             '_header_extra' => ['js'=>['/lce/js/asiento.js']],
@@ -115,15 +117,19 @@ class Controller_LceAsientos extends \Controller_Maintainer
             'detalle' => $Asiento->getDetalle(false),
         ]);
         if (!isset($_POST['submit'])) {
-            parent::editar($Contribuyente->rut, $asiento);
+            parent::editar($Contribuyente->rut, $periodo, $asiento);
         } else {
             $Asiento->set($_POST);
             try {
-                $Asiento->save();
-                $Asiento->saveDetalle($this->obtenerDetallePost());
-                \sowerphp\core\Model_Datasource_Session::message(
-                    'Registro ('.implode(', ', func_get_args()).') editado', 'ok'
-                );
+                if ($Asiento->save() and $Asiento->saveDetalle($this->obtenerDetallePost())) {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro ('.implode(', ', func_get_args()).') editado', 'ok'
+                    );
+                } else {
+                    \sowerphp\core\Model_Datasource_Session::message(
+                        'Registro ('.implode(', ', func_get_args()).') no editado', 'error'
+                    );
+                }
             } catch (\Exception $e) {
                 \sowerphp\core\Model_Datasource_Session::message(
                     'Registro ('.implode(', ', func_get_args()).') no editado: '.$e->getMessage(), 'error'
@@ -161,12 +167,12 @@ class Controller_LceAsientos extends \Controller_Maintainer
     /**
      * Acción para eliminar un asient contable
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-03
      */
-    public function eliminar($asiento)
+    public function eliminar($periodo, $asiento = null)
     {
         $Contribuyente = $this->getContribuyente();
-        parent::eliminar($Contribuyente->rut, $asiento);
+        parent::eliminar($Contribuyente->rut, $periodo, $asiento);
     }
 
 }

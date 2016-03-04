@@ -64,7 +64,8 @@ CREATE INDEX lce_cuenta_contribuyente_activa_idx ON lce_cuenta (contribuyente, a
 
 CREATE TABLE lce_asiento (
     contribuyente INTEGER NOT NULL,
-    codigo INTEGER NOT NULL,
+    periodo SMALLINT NOT NULL CHECK (periodo = DATE_FORMAT(fecha, "%Y%m")),
+    asiento INTEGER NOT NULL,
     fecha DATE NOT NULL,
     glosa TEXT NOT NULL,
     json BOOLEAN NOT NULL DEFAULT false,
@@ -72,7 +73,7 @@ CREATE TABLE lce_asiento (
     creado DATETIME NOT NULL DEFAULT NOW(),
     modificado DATETIME,
     usuario INTEGER UNSIGNED,
-    CONSTRAINT lce_asiento_pkey PRIMARY KEY (contribuyente, codigo),
+    CONSTRAINT lce_asiento_pkey PRIMARY KEY (contribuyente, periodo, asiento),
     CONSTRAINT lce_asiento_contribuyente_fk FOREIGN KEY (contribuyente)
                 REFERENCES contribuyente (rut) MATCH FULL
                 ON UPDATE CASCADE ON DELETE CASCADE,
@@ -84,14 +85,17 @@ CREATE INDEX lce_asiento_contribuyente_fecha_idx ON lce_asiento (contribuyente, 
 
 CREATE TABLE lce_asiento_detalle (
     contribuyente INTEGER NOT NULL,
+    periodo SMALLINT NOT NULL,
     asiento INTEGER NOT NULL,
+    movimiento SMALLINT NOT NULL,
     cuenta CHARACTER VARYING (20) NOT NULL,
     debe INTEGER,
     haber INTEGER,
     concepto TEXT,
     json BOOLEAN NOT NULL DEFAULT false,
-    CONSTRAINT lce_asiento_detalle_contribuyente_asiento_fk FOREIGN KEY (contribuyente, asiento)
-        REFERENCES lce_asiento (contribuyente, codigo) MATCH FULL
+    CONSTRAINT lce_asiento_detalle_pk PRIMARY KEY (contribuyente, periodo, asiento, movimiento),
+    CONSTRAINT lce_asiento_detalle_contribuyente_asiento_fk FOREIGN KEY (contribuyente, periodo, asiento)
+        REFERENCES lce_asiento (contribuyente, periodo, asiento) MATCH FULL
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT lce_asiento_detalle_contribuyente_cuenta_fk FOREIGN KEY (contribuyente, cuenta)
         REFERENCES lce_cuenta (contribuyente, codigo) MATCH FULL

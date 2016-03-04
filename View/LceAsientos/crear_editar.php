@@ -16,8 +16,8 @@ echo '<div class="row">',"\n";
 echo '<div class="col-md-6">',"\n";
 echo $f->input([
     'name' => 'codigo',
-    'label' => 'Códgo',
-    'value' => isset($Obj) ? $Obj->codigo : null,
+    'label' => 'Código',
+    'value' => isset($Obj) ? $Obj->periodo.'-'.$Obj->asiento : null,
     'check' => 'notempty integer',
     'attr' => 'disabled="disabled"',
 ]);

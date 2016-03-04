@@ -52,15 +52,30 @@ class Model_LceAsientos extends \Model_Plural_App
     }
 
     /**
+     * Método que entrega el listado de períodos del contribuyente
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-03-04
+     */
+    public function getPeriodos()
+    {
+        return $this->db->getAssociativeArray('
+            SELECT DISTINCT periodo AS id, periodo AS glosa
+            FROM lce_asiento
+            WHERE contribuyente = :contribuyente
+            ORDER BY periodo DESC
+        ', [':contribuyente'=>$this->contribuyente]);
+    }
+
+    /**
      * Método que entrega los asientos para confeccionar el libro diario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-02-10
+     * @version 2016-03-04
      */
     public function getLibroDiario($desde, $hasta)
     {
         $asientos = \sowerphp\core\Utility_Array::fromTableWithHeaderAndBody($this->db->getTable('
             SELECT
-                a.codigo AS asiento,
+                a.asiento AS asiento,
                 a.fecha,
                 a.glosa,
                 a.creado,
@@ -75,11 +90,12 @@ class Model_LceAsientos extends \Model_Plural_App
                 lce_asiento_detalle AS ad,
                 lce_cuenta AS c
             WHERE
-                ad.asiento = a.codigo
+                ad.periodo = a.periodo
+                AND ad.asiento = a.asiento
                 AND ad.cuenta = c.codigo
                 AND a.contribuyente = :contribuyente
                 AND a.fecha BETWEEN :desde AND :hasta
-            ORDER BY a.creado, a.codigo
+            ORDER BY a.creado, a.asiento
         ', [':contribuyente'=>$this->contribuyente, ':desde'=>$desde, ':hasta'=>$hasta]), 6);
         foreach ($asientos as &$asiento) {
             $asiento['debito'] = 0;
@@ -95,7 +111,7 @@ class Model_LceAsientos extends \Model_Plural_App
     /**
      * Método que entrega las cuentas para construir el libro mayor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-02-10
+     * @version 2016-03-03
      */
     public function getLibroMayor($desde, $hasta)
     {
@@ -103,7 +119,8 @@ class Model_LceAsientos extends \Model_Plural_App
             SELECT c.cuenta, ad.debe, ad.haber
             FROM lce_asiento AS a, lce_asiento_detalle AS ad, lce_cuenta AS c
             WHERE
-                ad.asiento = a.codigo
+                ad.periodo = a.periodo
+                AND ad.asiento = a.asiento
                 AND ad.cuenta = c.codigo
                 AND a.contribuyente = :contribuyente
                 AND a.fecha BETWEEN :desde AND :hasta
@@ -153,12 +170,11 @@ class Model_LceAsientos extends \Model_Plural_App
     /**
      * Método que construye el balance general
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-02-10
+     * @version 2016-03-04
      */
-    public function getBalanceGeneral($desde, $hasta)
+    public function getBalanceGeneral($periodo)
     {
-        $db = &\sowerphp\core\Model_Datasource_Database::get();
-        $balance = $db->getTable ('
+        $balance = $this->db->getTable ('
             SELECT
                 b.cuenta,
                 b.debitos,
@@ -209,14 +225,15 @@ class Model_LceAsientos extends \Model_Plural_App
                     END AS saldo_acreedor
                 FROM lce_asiento AS a, lce_asiento_detalle AS ad, lce_cuenta AS c
                 WHERE
-                    ad.asiento = a.codigo
+                    ad.periodo = a.periodo
+                    AND ad.asiento = a.asiento
                     AND ad.cuenta = c.codigo
                     AND a.contribuyente = :contribuyente
-                    AND a.fecha BETWEEN :desde AND :hasta
+                    AND a.periodo = :periodo
                 GROUP BY c.codigo, c.cuenta, c.clasificacion
                 ORDER BY CHAR_LENGTH(c.codigo), c.codigo
             ) AS b
-        ', [':contribuyente'=>$this->contribuyente, ':desde'=>$desde, ':hasta'=>$hasta]);
+        ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$periodo]);
         // determinar sumas parciales
         $sumas_parciales = [
             'debitos'=>0,

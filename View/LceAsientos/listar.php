@@ -84,8 +84,8 @@ foreach ($Objs as &$obj) {
             $row[] = $obj->{$column};
         }
     }
-    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$obj->codigo.$listarFilterUrl.'" title="Editar"><span class="fa fa-edit btn btn-default"></span></a>';
-    $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$obj->codigo.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.$obj->codigo.'\')"><span class="fa fa-remove btn btn-default"></span></a>';
+    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$obj->periodo.'/'.$obj->asiento.$listarFilterUrl.'" title="Editar"><span class="fa fa-edit btn btn-default"></span></a>';
+    $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$obj->periodo.'/'.$obj->asiento.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.$obj->periodo.', '.$obj->asiento.'\')"><span class="fa fa-remove btn btn-default"></span></a>';
     $row[] = $actions;
     $data[] = $row;
 }

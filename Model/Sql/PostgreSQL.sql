@@ -82,7 +82,8 @@ COMMENT ON COLUMN lce_cuenta.codigo_otro IS 'Correspondencia de esta cuenta con 
 DROP TABLE IF EXISTS lce_asiento CASCADE;
 CREATE TABLE lce_asiento (
     contribuyente INTEGER NOT NULL,
-    codigo INTEGER NOT NULL,
+    periodo SMALLINT NOT NULL CHECK (periodo = TO_CHAR(fecha, 'YYYY')::INTEGER),
+    asiento INTEGER NOT NULL,
     fecha DATE NOT NULL,
     glosa TEXT NOT NULL,
     json BOOLEAN NOT NULL DEFAULT false,
@@ -90,7 +91,7 @@ CREATE TABLE lce_asiento (
     creado TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     modificado TIMESTAMP WITHOUT TIME ZONE,
     usuario INTEGER,
-    CONSTRAINT lce_asiento_pkey PRIMARY KEY (contribuyente, codigo),
+    CONSTRAINT lce_asiento_pkey PRIMARY KEY (contribuyente, periodo, asiento),
     CONSTRAINT lce_asiento_contribuyente_fk FOREIGN KEY (contribuyente)
                 REFERENCES contribuyente (rut) MATCH FULL
                 ON UPDATE CASCADE ON DELETE CASCADE,
@@ -101,21 +102,25 @@ CREATE TABLE lce_asiento (
 CREATE INDEX ON lce_asiento (contribuyente, fecha);
 COMMENT ON TABLE lce_asiento IS 'Cabecera de los asientos contables';
 COMMENT ON COLUMN lce_asiento.contribuyente IS 'RUT del contribuyente sin DV';
-COMMENT ON COLUMN lce_asiento.codigo IS 'Identificador único del asiento para el contribuyente';
+COMMENT ON COLUMN lce_asiento.periodo IS 'Año de la fecha del asiento';
+COMMENT ON COLUMN lce_asiento.asiento IS 'Número del asiento dentro del periodo';
 COMMENT ON COLUMN lce_asiento.fecha IS 'Fecha del hecho económico que se está registrando';
 COMMENT ON COLUMN lce_asiento.glosa IS 'Glosa o descripción del hecho económico';
 
 DROP TABLE IF EXISTS lce_asiento_detalle CASCADE;
 CREATE TABLE lce_asiento_detalle (
     contribuyente INTEGER NOT NULL,
+    periodo SMALLINT NOT NULL,
     asiento INTEGER NOT NULL,
+    movimiento SMALLINT NOT NULL,
     cuenta CHARACTER VARYING (20) NOT NULL,
     debe INTEGER,
     haber INTEGER,
     concepto TEXT,
     json BOOLEAN NOT NULL DEFAULT false,
-    CONSTRAINT lce_asiento_detalle_contribuyente_asiento_fk FOREIGN KEY (contribuyente, asiento)
-        REFERENCES lce_asiento (contribuyente, codigo) MATCH FULL
+    CONSTRAINT lce_asiento_detalle_pk PRIMARY KEY (contribuyente, periodo, asiento, movimiento),
+    CONSTRAINT lce_asiento_detalle_contribuyente_periodo_asiento_fk FOREIGN KEY (contribuyente, periodo, asiento)
+        REFERENCES lce_asiento (contribuyente, periodo, asiento) MATCH FULL
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT lce_asiento_detalle_contribuyente_cuenta_fk FOREIGN KEY (contribuyente, cuenta)
         REFERENCES lce_cuenta (contribuyente, codigo) MATCH FULL
@@ -127,7 +132,9 @@ CREATE INDEX ON lce_asiento_detalle (contribuyente, asiento, cuenta);
 CREATE INDEX ON lce_asiento_detalle (contribuyente, cuenta);
 COMMENT ON TABLE lce_asiento_detalle IS 'Detalle de los asientos contables';
 COMMENT ON COLUMN lce_asiento_detalle.contribuyente IS 'RUT del contribuyente sin DV';
-COMMENT ON COLUMN lce_asiento_detalle.asiento IS 'Número de asiento';
+COMMENT ON COLUMN lce_asiento_detalle.periodo IS 'Año de la fecha del asiento';
+COMMENT ON COLUMN lce_asiento_detalle.asiento IS 'Número del asiento dentro del periodo';
+COMMENT ON COLUMN lce_asiento_detalle.movimiento IS 'Número de movimiento en el asiento';
 COMMENT ON COLUMN lce_asiento_detalle.cuenta IS 'Cuenta que se ve afectada';
 COMMENT ON COLUMN lce_asiento_detalle.debe IS 'Cargo al debe';
 COMMENT ON COLUMN lce_asiento_detalle.haber IS 'Abono al haber';

@@ -26,12 +26,12 @@
 
 // Menú para el módulo
 \sowerphp\core\Configure::write('nav.module', [
-    '/lce_asientos/listar/1/creado/D?search=anulado:0' => [
+    '/lce_asientos/listar/1/asiento/D?search=periodo:'.date('Y').',anulado:0' => [
         'name' => 'Asientos contables',
         'desc' => 'Mantenedor de hechos económicos diarios',
         'icon' => 'fa fa-dollar',
     ],
-    '/lce_asientos/crear?listar=LzEvY3JlYWRvL0Q/c2VhcmNoPWNvbnRyaWJ1eWVudGU6NzYxOTIwODMsYW51bGFkbzow' => [
+    '/lce_asientos/crear?listar=LzEvYXNpZW50by9EP3NlYXJjaD1jb250cmlidXllbnRlOjc2MTkyMDgzLHBlcmlvZG86MjAxNixhbnVsYWRvOjA=' => [
         'name' => 'Crear asiento',
         'desc' => 'Registrar un nuevo hecho económico',
         'icon' => 'fa fa-edit',

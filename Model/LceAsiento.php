@@ -29,7 +29,7 @@ namespace website\Lce;
  * Comentario de la tabla: Cabecera de los asientos contables
  * Esta clase permite trabajar sobre un registro de la tabla lce_asiento
  * @author SowerPHP Code Generator
- * @version 2016-02-09 23:39:24
+ * @version 2016-03-03 23:08:52
  */
 class Model_LceAsiento extends \Model_App
 {
@@ -40,7 +40,8 @@ class Model_LceAsiento extends \Model_App
 
     // Atributos de la clase (columnas en la base de datos)
     public $contribuyente; ///< RUT del contribuyente sin DV: integer(32) NOT NULL DEFAULT '' PK FK:contribuyente.rut
-    public $codigo; ///< Identificador único del asiento para el contribuyente: integer(32) NOT NULL DEFAULT '' PK
+    public $periodo; ///< Año de la fecha del asiento: smallint(16) NOT NULL DEFAULT '' PK
+    public $asiento; ///< Número del asiento dentro del periodo: integer(32) NOT NULL DEFAULT '' PK
     public $fecha; ///< Fecha del hecho económico que se está registrando: date() NOT NULL DEFAULT ''
     public $glosa; ///< Glosa o descripción del hecho económico: text() NOT NULL DEFAULT ''
     public $json; ///< boolean() NOT NULL DEFAULT 'false'
@@ -62,9 +63,20 @@ class Model_LceAsiento extends \Model_App
             'pk'        => true,
             'fk'        => array('table' => 'contribuyente', 'column' => 'rut')
         ),
-        'codigo' => array(
-            'name'      => 'Código',
-            'comment'   => 'Identificador único del asiento para el contribuyente',
+        'periodo' => array(
+            'name'      => 'Período',
+            'comment'   => 'Año de la fecha del asiento',
+            'type'      => 'smallint',
+            'length'    => 16,
+            'null'      => false,
+            'default'   => '',
+            'auto'      => false,
+            'pk'        => true,
+            'fk'        => null
+        ),
+        'asiento' => array(
+            'name'      => 'Asiento',
+            'comment'   => 'Número del asiento dentro del periodo',
             'type'      => 'integer',
             'length'    => 32,
             'null'      => false,
@@ -164,10 +176,25 @@ class Model_LceAsiento extends \Model_App
     /**
      * Método que guarda la cabecera del asiento
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-10
+     * @version 2016-03-03
      */
     public function save()
     {
+        // si no hay contribuyente o glosa error
+        if (!$this->contribuyente or !$this->glosa) {
+            return false;
+        }
+        // ajustar campos automáticos
+        if (!$this->fecha) {
+            $this->fecha = date('Y-m-d');
+        }
+        $this->periodo = (int)substr($this->fecha, 0, 4);
+        if (!$this->creado) {
+            $this->creado = date('Y-m-d H:i:s');
+        }
+        if ($this->asiento) {
+            $this->modificado = date('Y-m-d H:i:s');
+        }
         // probar si puede ser objeto o arreglo, si lo es se codifica
         if (is_object($this->glosa) or is_array($this->glosa)) {
             $this->glosa = json_encode($this->glosa);
@@ -177,12 +204,12 @@ class Model_LceAsiento extends \Model_App
         }
         // guardar asiento
         $this->db->beginTransaction(true);
-        if (!$this->codigo) {
-            $this->codigo = $this->db->getValue('
-                SELECT MAX(codigo)
+        if (!$this->asiento) {
+            $this->asiento = $this->db->getValue('
+                SELECT MAX(asiento)
                 FROM lce_asiento
-                WHERE contribuyente = :contribuyente
-            ', [':contribuyente' => $this->contribuyente]) + 1;
+                WHERE contribuyente = :contribuyente AND periodo = :periodo
+            ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$this->periodo]) + 1;
         }
         $status = parent::save();
         $this->db->commit();
@@ -192,15 +219,15 @@ class Model_LceAsiento extends \Model_App
     /**
      * Método para obtener el detalle del asiento
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-03
      */
     public function getDetalle($json_decode = true)
     {
         $detalle = $this->db->getTable('
             SELECT cuenta, debe, haber, concepto'.($json_decode?', json':'').'
             FROM lce_asiento_detalle
-            WHERE contribuyente = :contribuyente AND asiento = :asiento
-        ', [':contribuyente'=>$this->contribuyente, ':asiento'=>$this->codigo]);
+            WHERE contribuyente = :contribuyente AND periodo = :periodo AND asiento = :asiento
+        ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$this->periodo, ':asiento'=>$this->asiento]);
         if ($json_decode) {
             foreach ($detalle as &$d) {
                 if ($d['json'])
@@ -214,15 +241,16 @@ class Model_LceAsiento extends \Model_App
     /**
      * Método para guardar el detalle del asiento
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-10
+     * @version 2016-03-04
      */
     public function saveDetalle($detalle)
     {
         $this->db->beginTransaction();
         $this->db->query('
             DELETE FROM lce_asiento_detalle
-            WHERE contribuyente = :contribuyente AND asiento = :asiento
-        ', [':contribuyente'=>$this->contribuyente, ':asiento'=>$this->codigo]);
+            WHERE contribuyente = :contribuyente AND periodo = :periodo AND asiento = :asiento
+        ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$this->periodo, ':asiento'=>$this->asiento]);
+        $movimiento = 1;
         foreach ($detalle as &$d) {
             // determinar concepto y si se debe o no serializar
             if (!empty($d['concepto'])) {
@@ -239,10 +267,12 @@ class Model_LceAsiento extends \Model_App
             // guardar movimiento del detalle
             $this->db->query('
                 INSERT INTO lce_asiento_detalle
-                VALUES (:contribuyente, :asiento, :cuenta, :debe, :haber, :concepto, :json)
+                VALUES (:contribuyente, :periodo, :asiento, :movimiento, :cuenta, :debe, :haber, :concepto, :json)
             ', [
                 ':contribuyente' => $this->contribuyente,
-                ':asiento' => $this->codigo,
+                ':periodo' => $this->periodo,
+                ':asiento' => $this->asiento,
+                ':movimiento' => $movimiento++,
                 ':cuenta' => $d['cuenta'],
                 ':debe' => !empty($d['debe']) ? $d['debe'] : null,
                 ':haber' => !empty($d['haber']) ? $d['haber'] : null,
@@ -250,7 +280,7 @@ class Model_LceAsiento extends \Model_App
                 ':json' => $d['json'],
             ]);
         }
-        $this->db->commit();
+        return $this->db->commit();
     }
 
 }

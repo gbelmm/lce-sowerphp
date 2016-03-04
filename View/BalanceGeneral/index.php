@@ -24,21 +24,11 @@
 $f = new \sowerphp\general\View_Helper_Form();
 echo $f->begin(['onsubmit'=>'Form.check()']);
 echo $f->input([
-    'type' => 'date',
-    'name' => 'desde',
-    'label' => 'Desde',
-    'value' => isset($_POST['desde']) ? $_POST['desde'] : date('Y').'-01-01',
-    'check' => 'notempty date',
-    'help' => 'Desde cuando buscar',
-    'attr' => 'onchange="document.getElementById(\'hastaField\').value = this.value"',
-]);
-echo $f->input([
-    'type' => 'date',
-    'name' => 'hasta',
-    'label' => 'Hasta',
-    'value' => isset($_POST['hasta']) ? $_POST['hasta'] : date('Y-m-d'),
-    'check' => 'notempty date',
-    'help' => 'Hasta cuando buscar',
+    'type' => 'select',
+    'name' => 'periodo',
+    'label' => 'Año',
+    'options' => $periodos,
+    'check' => 'notempty',
 ]);
 echo $f->end('Generar balance general');
 echo '</div>';
