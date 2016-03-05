@@ -44,11 +44,14 @@ class Controller_LceCuentas extends \Controller_Maintainer
     /**
      * Acción para listar las cuentas contables del contribuyente
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-04
      */
     public function listar($page = 1, $orderby = null, $order = 'A')
     {
         $Contribuyente = $this->getContribuyente();
+        $this->set([
+            'clasificaciones' => (new Model_LceCuentaClasificaciones())->setContribuyente($Contribuyente->rut)->getList(),
+        ]);
         $this->forceSearch(['contribuyente'=>$Contribuyente->rut]);
         parent::listar($page, $orderby, $order);
     }
@@ -56,16 +59,17 @@ class Controller_LceCuentas extends \Controller_Maintainer
     /**
      * Acción para crear una cuenta contable
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-04
      */
     public function crear()
     {
         $Contribuyente = $this->getContribuyente();
         $_POST['contribuyente'] = $Contribuyente->rut;
-        $Clasificaciones = new \website\Lce\Admin\Mantenedores\Model_LceCuentaClasificaciones();
+        $Clasificaciones = new Model_LceCuentaClasificaciones();
+        $Clasificaciones->setContribuyente($Contribuyente->rut);
         $this->set([
-            'clasificaciones' => $Clasificaciones->getList(),
-            'subclasificaciones' => $Clasificaciones->getListSub(),
+            'clasificaciones' => $Clasificaciones->getListPrincipales(),
+            'subclasificaciones' => $Clasificaciones->getListSubclasificaciones(),
             'oficiales' => (new \website\Lce\Admin\Mantenedores\Model_LceCuentaOficiales())->getList(),
         ]);
         parent::crear();
@@ -74,16 +78,17 @@ class Controller_LceCuentas extends \Controller_Maintainer
     /**
      * Acción para editar una cuenta contable
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-05
      */
     public function editar($cuenta)
     {
         $Contribuyente = $this->getContribuyente();
         $_POST['contribuyente'] = $Contribuyente->rut;
-        $Clasificaciones = new \website\Lce\Admin\Mantenedores\Model_LceCuentaClasificaciones();
+        $Clasificaciones = new Model_LceCuentaClasificaciones();
+        $Clasificaciones->setContribuyente($Contribuyente->rut);
         $this->set([
-            'clasificaciones' => $Clasificaciones->getList(),
-            'subclasificaciones' => $Clasificaciones->getListSub(),
+            'clasificaciones' => $Clasificaciones->getListPrincipales(),
+            'subclasificaciones' => $Clasificaciones->getListSubclasificaciones(),
             'oficiales' => (new \website\Lce\Admin\Mantenedores\Model_LceCuentaOficiales())->getList(),
         ]);
         parent::editar($Contribuyente->rut, $cuenta);
@@ -125,6 +130,50 @@ class Controller_LceCuentas extends \Controller_Maintainer
     }
 
     /**
+     * Acción que permite migrar los códigos de cuenta del plan a otro código
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-05
+     */
+    public function migrar()
+    {
+        if (isset($_POST['submit'])) {
+            // verificar que se haya podido subir el archivo con los códigos
+            if (!isset($_FILES['archivo']) or $_FILES['archivo']['error']) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Ocurrió un error al subir el archivo con los códigos', 'error'
+                );
+                return;
+            }
+            // migrar cada código
+            $Contribuyente = $this->getContribuyente();
+            $cuentas = \sowerphp\general\Utility_Spreadsheet::read($_FILES['archivo']);
+            array_shift($cuentas);
+            $LceCuentas = new Model_LceCuentas();
+            $LceCuentas->setContribuyente($Contribuyente->rut);
+            $error = [];
+            foreach ($cuentas as $c) {
+                try {
+                    $LceCuentas->migrar($c[0], $c[1]);
+                } catch (\sowerphp\core\Exception_Model_Datasource_Database $e) {
+                    $error[] = $e->getMessage();
+                }
+            }
+            // mostrar errores o redireccionar
+            if (!empty($error)) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'No se pudieron guardar todas las cuentas:<br/>'.implode('<br/>', $error),
+                    'warning'
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Se migraron los códigos de las cuentas', 'ok'
+                );
+                $this->redirect('/lce/lce_cuentas/listar');
+            }
+        }
+    }
+
+    /**
      * Acción que permite importar el plan de cuentas contables desde un archivo
      * CSV
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
@@ -145,7 +194,7 @@ class Controller_LceCuentas extends \Controller_Maintainer
             $cuentas = \sowerphp\general\Utility_Spreadsheet::read($_FILES['archivo']);
             array_shift($cuentas);
             $resumen = ['nuevas'=>[], 'editadas'=>[], 'error'=>[]];
-            $cols = ['codigo', 'cuenta', 'clasificacion', 'subclasificacion', 'oficial', 'descripcion', 'cargos', 'abonos', 'saldo_deudor', 'saldo_acreedor', 'activa', 'codigo_otro'];
+            $cols = ['codigo', 'cuenta', 'clasificacion', 'oficial', 'descripcion', 'cargos', 'abonos', 'saldo_deudor', 'saldo_acreedor', 'activa', 'codigo_otro'];
             $n_cols = count($cols);
             foreach ($cuentas as $c) {
                 // crear objeto

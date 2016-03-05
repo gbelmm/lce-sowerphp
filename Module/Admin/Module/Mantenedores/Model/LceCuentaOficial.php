@@ -26,10 +26,10 @@ namespace website\Lce\Admin\Mantenedores;
 
 /**
  * Clase para mapear la tabla lce_cuenta_oficial de la base de datos
- * Comentario de la tabla: Plan de cuentas oficial del SII, cuentas de la empresa se deben mapear a estas para construir el diccionario de cuentas
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un registro de la tabla lce_cuenta_oficial
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:44:34
+ * @version 2016-03-04 22:28:48
  */
 class Model_LceCuentaOficial extends \Model_App
 {
@@ -39,15 +39,15 @@ class Model_LceCuentaOficial extends \Model_App
     protected $_table = 'lce_cuenta_oficial'; ///< Tabla del modelo
 
     // Atributos de la clase (columnas en la base de datos)
-    public $codigo; ///< Código asignado por el SII a la cuenta: character varying(16) NOT NULL DEFAULT '' PK
-    public $cuenta; ///< Nombre asignado por el SII a la cuenta: character varying(120) NOT NULL DEFAULT ''
-    public $clasificacion; ///< Clasificación de la cuenta: character varying(3) NOT NULL DEFAULT '' FK:lce_cuenta_clasificacion.codigo
+    public $codigo; ///< character varying(16) NOT NULL DEFAULT '' PK
+    public $cuenta; ///< character varying(120) NOT NULL DEFAULT ''
+    public $clasificacion; ///< smallint(16) NOT NULL DEFAULT ''
 
     // Información de las columnas de la tabla en la base de datos
     public static $columnsInfo = array(
         'codigo' => array(
             'name'      => 'Codigo',
-            'comment'   => 'Código asignado por el SII a la cuenta',
+            'comment'   => '',
             'type'      => 'character varying',
             'length'    => 16,
             'null'      => false,
@@ -58,7 +58,7 @@ class Model_LceCuentaOficial extends \Model_App
         ),
         'cuenta' => array(
             'name'      => 'Cuenta',
-            'comment'   => 'Nombre asignado por el SII a la cuenta',
+            'comment'   => '',
             'type'      => 'character varying',
             'length'    => 120,
             'null'      => false,
@@ -69,24 +69,22 @@ class Model_LceCuentaOficial extends \Model_App
         ),
         'clasificacion' => array(
             'name'      => 'Clasificacion',
-            'comment'   => 'Clasificación de la cuenta',
-            'type'      => 'character varying',
-            'length'    => 3,
+            'comment'   => '',
+            'type'      => 'smallint',
+            'length'    => 16,
             'null'      => false,
             'default'   => '',
             'auto'      => false,
             'pk'        => false,
-            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'codigo')
+            'fk'        => null
         ),
 
     );
 
     // Comentario de la tabla en la base de datos
-    public static $tableComment = 'Plan de cuentas oficial del SII, cuentas de la empresa se deben mapear a estas para construir el diccionario de cuentas';
+    public static $tableComment = '';
 
-    public static $fkNamespace = array(
-        'Model_LceCuentaClasificacion' => 'website\Lce\Admin\Mantenedores'
-    ); ///< Namespaces que utiliza esta clase
+    public static $fkNamespace = array(); ///< Namespaces que utiliza esta clase
 
     public function __construct($codigo = null)
     {

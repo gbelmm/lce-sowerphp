@@ -34,7 +34,7 @@ class Controller_BalanceGeneral extends \Controller_App
     /**
      * Acción principal para generar el balance general
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-03-04
+     * @version 2016-03-05
      */
     public function index()
     {
@@ -44,6 +44,7 @@ class Controller_BalanceGeneral extends \Controller_App
         if (isset($_POST['submit'])) {
             $datos = $LceAsientos->getBalanceGeneral($_POST['periodo']);
             $this->set(array(
+                'Contribuyente' => $Contribuyente,
                 'datos' => $datos,
             ));
         }

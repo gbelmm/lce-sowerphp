@@ -57,7 +57,7 @@ if (isset($datos)) {
             $valor = num($valor);
         }
     }
-    echo '<p class="visible-print">Balance general del año ',$_POST['periodo'],"\n";
+    echo '<p class="visible-print">Balance general del año ',$_POST['periodo'],' de ',$Contribuyente->razon_social,'</p>',"\n";
     array_unshift ($balance, ['Cuenta', 'Débitos', 'Créditos', 'Saldo deudor', 'Saldo acreedor', 'Activo', 'Pasivo', 'Pérdidas', 'Ganancias']);
     array_unshift ($sumas_parciales, '<span style="text-align:right"><strong>Sumas parciales</strong></span>');
     $resultados = ['<span style="text-align:right"><strong>Resultados</strong></span>','','','',''] + $resultados;

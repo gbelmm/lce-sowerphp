@@ -26,10 +26,10 @@ namespace website\Lce;
 
 /**
  * Clase para mapear la tabla lce_asiento de la base de datos
- * Comentario de la tabla: Cabecera de los asientos contables
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un conjunto de registros de la tabla lce_asiento
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:50:20
+ * @version 2016-03-04 22:54:48
  */
 class Model_LceAsientos extends \Model_Plural_App
 {
@@ -37,19 +37,6 @@ class Model_LceAsientos extends \Model_Plural_App
     // Datos para la conexión a la base de datos
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'lce_asiento'; ///< Tabla del modelo
-
-    protected $contribuyente; ///< Contribuyente con el que se realizarán las consultas
-
-    /**
-     * Método que asigna el contribuyente que se utilizará en las consultas
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
-     */
-    public function setContribuyente($contribuyente)
-    {
-        $this->contribuyente = $contribuyente;
-        return $this;
-    }
 
     /**
      * Método que entrega el listado de períodos del contribuyente
@@ -69,7 +56,7 @@ class Model_LceAsientos extends \Model_Plural_App
     /**
      * Método que entrega los asientos para confeccionar el libro diario
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-03-04
+     * @version 2016-03-05
      */
     public function getLibroDiario($desde, $hasta)
     {
@@ -95,7 +82,7 @@ class Model_LceAsientos extends \Model_Plural_App
                 AND ad.cuenta = c.codigo
                 AND a.contribuyente = :contribuyente
                 AND a.fecha BETWEEN :desde AND :hasta
-            ORDER BY a.creado, a.asiento
+            ORDER BY a.periodo, a.asiento, ad.movimiento
         ', [':contribuyente'=>$this->contribuyente, ':desde'=>$desde, ':hasta'=>$hasta]), 6);
         foreach ($asientos as &$asiento) {
             $asiento['debito'] = 0;
@@ -111,7 +98,7 @@ class Model_LceAsientos extends \Model_Plural_App
     /**
      * Método que entrega las cuentas para construir el libro mayor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-03-03
+     * @version 2016-03-05
      */
     public function getLibroMayor($desde, $hasta)
     {
@@ -126,9 +113,9 @@ class Model_LceAsientos extends \Model_Plural_App
                 AND a.fecha BETWEEN :desde AND :hasta
             ORDER BY
                 CHAR_LENGTH(c.clasificacion), c.clasificacion,
-                CHAR_LENGTH(c.subclasificacion), c.subclasificacion,
                 CHAR_LENGTH(c.codigo), c.codigo,
-                a.fecha
+                a.periodo,
+                a.asiento
         ', [':contribuyente'=>$this->contribuyente, ':desde'=>$desde, ':hasta'=>$hasta]), 1);
         $cuentas = [];
         foreach ($aux as &$a) {
@@ -170,7 +157,7 @@ class Model_LceAsientos extends \Model_Plural_App
     /**
      * Método que construye el balance general
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2016-03-04
+     * @version 2016-03-05
      */
     public function getBalanceGeneral($periodo)
     {
@@ -181,16 +168,16 @@ class Model_LceAsientos extends \Model_Plural_App
                 b.creditos,
                 b.saldo_deudor,
                 b.saldo_acreedor,
-                CASE WHEN b.clasificacion IN (\'1\', \'2\', \'3\') AND b.saldo_deudor>0 THEN
+                CASE WHEN SUBSTR(b.clasificacion,1,1) IN (\'1\', \'2\', \'3\') AND b.saldo_deudor>0 THEN
                     saldo_deudor
                 ELSE NULL END AS activo,
-                CASE WHEN b.clasificacion IN (\'1\', \'2\', \'3\') AND b.saldo_acreedor>0 THEN
+                CASE WHEN SUBSTR(b.clasificacion,1,1) IN (\'1\', \'2\', \'3\') AND b.saldo_acreedor>0 THEN
                     saldo_acreedor
                 ELSE NULL END AS pasivo,
-                CASE WHEN b.clasificacion IN (\'4\') AND b.saldo_deudor>0 THEN
+                CASE WHEN SUBSTR(b.clasificacion,1,1) IN (\'4\') AND b.saldo_deudor>0 THEN
                     saldo_deudor
                 ELSE NULL END AS perdidas,
-                CASE WHEN b.clasificacion IN (\'4\') AND b.saldo_acreedor>0 THEN
+                CASE WHEN SUBSTR(b.clasificacion,1,1) IN (\'4\') AND b.saldo_acreedor>0 THEN
                     saldo_acreedor
                 ELSE NULL END AS ganancias
             FROM (
@@ -286,6 +273,46 @@ class Model_LceAsientos extends \Model_Plural_App
                 $suma_total[$col] = $sumas_parciales[$col];
         }
         return compact('balance', 'sumas_parciales', 'resultados', 'suma_total');
+    }
+
+    /**
+     * Método que ordena los asientos de un periodo por fecha ascendentemente
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-03-05
+     */
+    public function ordenar($periodo)
+    {
+        $this->db->beginTransaction();
+        // obtener el número de asiento mayor
+        $offset = $this->db->getValue('
+            SELECT MAX(asiento)
+            FROM lce_asiento
+            WHERE contribuyente = :contribuyente AND periodo = :periodo
+        ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$periodo]);
+        // mover los asientos desde el mayor en adelante (para hacer espacio al
+        // inicio)
+        $this->db->query('
+            UPDATE lce_asiento
+            SET asiento = (asiento + '.$offset.')
+            WHERE contribuyente = :contribuyente AND periodo = :periodo
+        ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$periodo]);
+        // obtener asientos ordenados por fecha y creación
+        $asientos = $this->db->getCol('
+            SELECT asiento
+            FROM lce_asiento
+            WHERE contribuyente = :contribuyente AND periodo = :periodo
+            ORDER BY fecha, creado
+        ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$periodo]);
+        // mover los asientos uno a uno a su nueva ubicación
+        $numero = 1;
+        foreach ($asientos as $asiento) {
+            $this->db->query('
+                UPDATE lce_asiento
+                SET asiento = :nuevo
+                WHERE contribuyente = :contribuyente AND periodo = :periodo AND asiento = :original
+            ', [':contribuyente'=>$this->contribuyente, ':periodo'=>$periodo, ':original'=>$asiento, ':nuevo'=>$numero++]);
+        }
+        return $this->db->commit();
     }
 
 }

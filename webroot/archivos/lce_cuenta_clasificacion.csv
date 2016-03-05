@@ -1,0 +1,20 @@
+codigo;clasificacion;superior;descripcion
+1;Activos;;
+2;Pasivos;;
+3;Patrimonio;;Corresponde al patrimonio total de los accionistas o socios de la empresa y estará representado por la suma de los rubros que la componen.
+4;Resultados (pérdidas y ganancias);;
+5;Orden;;
+11;Activos circulantes;1;Incluye aquellos activos o recursos de la empresa que serán realizados o consumidos dentro del plazo de un año a contar de las fechas de los estados financieros.
+12;Activos fijos;1;Como componentes del activo fijo deberán clasificarse todos los bienes que han sido adquiridos para usarlos en la explotación social y sin el propósito de venderlos.
+13;Otros activos;1;Aquellos activos de la empresa no clasificados como activos circulante ni como activos fijos, corresponderá incluirlos en esta clasificación.
+21;Pasivos circulantes;2;Incluye aquellas obligaciones contraídas por la empresa que serán canceladas dentro del plazo de un año a contar de la fecha de los estados financieros.
+22;Pasivos largo plazo;2;Incluye aquellas obligaciones de la empresa que serán pagadas o amortizadas en plazos superiores a un año a partir de la fecha de los estados financieros.
+31;Capital;3;Está constituído por el capital social, que se indica en la escritura de constitución social y las modificaciones de esta.
+32;Utilidades;3;
+41;Ingresos de explotación;4;Corresponde a todos los ingresos por concepto de bienes y servicios proporcionados por la empresa durante el período cubierto por el balance.
+42;Costos de explotación;4;Se debe mostrar los gastos efectuados para poder prestar los servicios de la empresa o bien los gastos necesarios para producir los bienes.
+43;Administración y venta;4;Gastos relacionados directamente con la administración de la empresa y con la comercialización de los productos y servicios principales, tales como comisiones, publicidad, arriendos, seguros. No incluye los gastos por conceptos de remuneraciones y honorarios.
+44;Otros ingresos fuera de explotación;4;Ingresos que provienen de las ventas u otras transacciones distintas de las principales, que no hayan sido definidas en las clasificaciones anteriores, tales como royalties, regalías, ventas de activo fijos, etc. Además se deberán presentar todos aquellos ingresos obtenidos en la enajenación de acciones, así como los dividendos percibidos por inversiones en otras sociedades.
+45;Egresos fuera de explotación;4;Gastos y costos originados en transacciones o ajustes que no se relacionan directamente con la actividad principal, tales como pérdidas en ventas de inversiones, en ventas de activos fijos, etc. Además, deberán incluirse aquellos cargos o resultados originados por la venta de acciones, o por el reconocimiento de pérdidas devengadas por inversiones en otras sociedades.
+46;Impuesto a la renta;4;
+51;Cuentas de orden;5;

@@ -26,10 +26,10 @@ namespace website\Lce;
 
 /**
  * Clase para mapear la tabla lce_cuenta de la base de datos
- * Comentario de la tabla: Plan de cuentas de la empresa (por ejemplo plan de cuentas MiPyme SII)
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un conjunto de registros de la tabla lce_cuenta
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:50:20
+ * @version 2016-03-04 22:54:48
  */
 class Model_LceCuentas extends \Model_Plural_App
 {
@@ -38,23 +38,10 @@ class Model_LceCuentas extends \Model_Plural_App
     protected $_database = 'default'; ///< Base de datos del modelo
     protected $_table = 'lce_cuenta'; ///< Tabla del modelo
 
-    protected $contribuyente; ///< Contribuyente con el que se realizarán las consultas
-
-    /**
-     * Método que asigna el contribuyente que se utilizará en las consultas
-     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
-     */
-    public function setContribuyente($contribuyente)
-    {
-        $this->contribuyente = $contribuyente;
-        return $this;
-    }
-
     /**
      * Método que entrega el listado de cuentas contables
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-23
+     * @version 2016-03-05
      */
     public function getList()
     {
@@ -64,7 +51,6 @@ class Model_LceCuentas extends \Model_Plural_App
             WHERE contribuyente = :contribuyente AND activa = true
             ORDER BY
                 CHAR_LENGTH(clasificacion), clasificacion,
-                CHAR_LENGTH(subclasificacion), subclasificacion,
                 CHAR_LENGTH(codigo), codigo
         ', [':contribuyente'=>$this->contribuyente]);
     }
@@ -72,7 +58,7 @@ class Model_LceCuentas extends \Model_Plural_App
     /**
      * Método que entrega el diccionario de cuentas contables
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-05
      */
     public function getDiccionario($clasificacion_glosa = true)
     {
@@ -83,7 +69,6 @@ class Model_LceCuentas extends \Model_Plural_App
                 WHERE c.clasificacion = cl.codigo AND c.contribuyente = :contribuyente AND c.activa = true
                 ORDER BY
                     CHAR_LENGTH(c.clasificacion), c.clasificacion,
-                    CHAR_LENGTH(c.subclasificacion), c.subclasificacion,
                     CHAR_LENGTH(c.codigo), c.codigo
             ', [':contribuyente'=>$this->contribuyente]);
         } else {
@@ -93,7 +78,6 @@ class Model_LceCuentas extends \Model_Plural_App
                 WHERE contribuyente = :contribuyente AND activa = true
                 ORDER BY
                     CHAR_LENGTH(clasificacion), clasificacion,
-                    CHAR_LENGTH(subclasificacion), subclasificacion,
                     CHAR_LENGTH(codigo), codigo
             ', [':contribuyente'=>$this->contribuyente]);
         }
@@ -102,7 +86,7 @@ class Model_LceCuentas extends \Model_Plural_App
     /**
      * Método que obtiene la ayuda para la carga o abono de las cuentas
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-10
+     * @version 2016-03-05
      */
     public function getAyuda()
     {
@@ -112,9 +96,22 @@ class Model_LceCuentas extends \Model_Plural_App
             WHERE contribuyente = :contribuyente AND activa = true
             ORDER BY
                 CHAR_LENGTH(clasificacion), clasificacion,
-                CHAR_LENGTH(subclasificacion), subclasificacion,
                 CHAR_LENGTH(codigo), codigo
         ', [':contribuyente'=>$this->contribuyente]);
+    }
+
+    /**
+     * Método que permite cambiar el código a una cuenta contable
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-05
+     */
+    public function migrar($original, $nuevo)
+    {
+        $this->db->query('
+            UPDATE lce_cuenta
+            SET codigo = :nuevo
+            WHERE contribuyente = :contribuyente AND codigo = :original
+        ', [':contribuyente'=>$this->contribuyente, ':original'=>$original, ':nuevo'=>$nuevo]);
     }
 
 }

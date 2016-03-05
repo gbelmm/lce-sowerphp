@@ -27,11 +27,11 @@ namespace website\Lce\Admin\Mantenedores;
 /**
  * Clase para el controlador asociado a la tabla lce_cuenta_oficial de la base de
  * datos
- * Comentario de la tabla: Plan de cuentas oficial del SII, cuentas de la empresa se deben mapear a estas para construir el diccionario de cuentas
+ * Comentario de la tabla: 
  * Esta clase permite controlar las acciones entre el modelo y vista para la
  * tabla lce_cuenta_oficial
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:44:34
+ * @version 2016-03-04 22:28:48
  */
 class Controller_LceCuentaOficiales extends \Controller_Maintainer
 {

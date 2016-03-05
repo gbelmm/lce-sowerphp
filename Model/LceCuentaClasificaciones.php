@@ -22,14 +22,14 @@
  */
 
 // namespace del modelo
-namespace website\Lce\Admin\Mantenedores;
+namespace website\Lce;
 
 /**
  * Clase para mapear la tabla lce_cuenta_clasificacion de la base de datos
- * Comentario de la tabla: Clasificación y subclasificación de cuentas contables
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un conjunto de registros de la tabla lce_cuenta_clasificacion
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:44:34
+ * @version 2016-03-04 22:54:48
  */
 class Model_LceCuentaClasificaciones extends \Model_Plural_App
 {
@@ -39,18 +39,37 @@ class Model_LceCuentaClasificaciones extends \Model_Plural_App
     protected $_table = 'lce_cuenta_clasificacion'; ///< Tabla del modelo
 
     /**
-     * Método que entrega las clasificaciones principales o superiores
+     * Método que entrega todas las clasificaciones ordenadas
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-02-09
+     * @version 2016-03-05
      */
     public function getList()
+    {
+        $clasificaciones = $this->db->getTable('
+            SELECT codigo AS id, '.$this->db->concat('codigo', ' - ', 'clasificacion').' AS glosa
+            FROM lce_cuenta_clasificacion
+            WHERE contribuyente = :contribuyente
+            ORDER BY codigo
+        ', [':contribuyente'=>$this->contribuyente]);
+        foreach ($clasificaciones as &$c) {
+            $c['glosa'] = str_repeat('&nbsp;',(strlen($c['id'])-1)*3).$c['glosa'];
+        }
+        return $clasificaciones;
+    }
+
+    /**
+     * Método que entrega las clasificaciones principales o superiores
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-04
+     */
+    public function getListPrincipales()
     {
         return $this->db->getTable('
             SELECT codigo AS id, '.$this->db->concat('codigo', ' - ', 'clasificacion').' AS glosa
             FROM lce_cuenta_clasificacion
-            WHERE superior IS NULL
+            WHERE contribuyente = :contribuyente AND superior IS NULL
             ORDER BY codigo
-        ');
+        ', [':contribuyente'=>$this->contribuyente]);
     }
 
     /**
@@ -58,14 +77,14 @@ class Model_LceCuentaClasificaciones extends \Model_Plural_App
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
      * @version 2016-02-09
      */
-    public function getListSub()
+    public function getListSubclasificaciones()
     {
         return $this->db->getAssociativeArray('
             SELECT SUBSTR(codigo, 1, 1) AS super, codigo AS id, '.$this->db->concat('codigo', ' - ', 'clasificacion').' AS glosa
             FROM lce_cuenta_clasificacion
-            WHERE superior IS NOT NULL
+            WHERE contribuyente = :contribuyente AND superior IS NOT NULL
             ORDER BY codigo
-        ');
+        ', [':contribuyente'=>$this->contribuyente]);
     }
 
 }

@@ -26,10 +26,10 @@ namespace website\Lce;
 
 /**
  * Clase para mapear la tabla lce_cuenta de la base de datos
- * Comentario de la tabla: Plan de cuentas de la empresa (por ejemplo plan de cuentas MiPyme SII)
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un registro de la tabla lce_cuenta
  * @author SowerPHP Code Generator
- * @version 2016-02-23 17:49:28
+ * @version 2016-03-04 22:54:48
  */
 class Model_LceCuenta extends \Model_App
 {
@@ -39,36 +39,35 @@ class Model_LceCuenta extends \Model_App
     protected $_table = 'lce_cuenta'; ///< Tabla del modelo
 
     // Atributos de la clase (columnas en la base de datos)
-    public $contribuyente; ///< RUT del contribuyente sin DV: integer(32) NOT NULL DEFAULT '' PK FK:contribuyente.rut
-    public $codigo; ///< Código de la cuenta (recomendado jerárquico): character varying(20) NOT NULL DEFAULT '' PK
-    public $cuenta; ///< Nombre corto de la cuenta: character varying(120) NOT NULL DEFAULT ''
-    public $clasificacion; ///< Clasificación de la cuenta (Activo, Pasivo, Patrimonio o Resultado): character varying(3) NOT NULL DEFAULT '' FK:lce_cuenta_clasificacion.codigo
-    public $subclasificacion; ///< Clasificación dentro de las de mayor jerarquía, por ejemplo Activo Circulante: character varying(3) NOT NULL DEFAULT '' FK:lce_cuenta_clasificacion.codigo
-    public $oficial; ///< Correspondencia de esta cuenta con una cuenta oficial del SII (para confección de diccionario de cuentas): character varying(16) NOT NULL DEFAULT '' FK:lce_cuenta_oficial.codigo
-    public $descripcion; ///< Descripción de la cuenta: text() NOT NULL DEFAULT ''
-    public $cargos; ///< Cuando se debe hacer un cargo a la cuenta: text() NULL DEFAULT ''
-    public $abonos; ///< Cuando se debe hacer un abono a la cuenta: text() NULL DEFAULT ''
-    public $saldo_deudor; ///< Que representa el saldo deudor de la cuenta: text() NULL DEFAULT ''
-    public $saldo_acreedor; ///< Que representa el saldo acreedor de la cuenta: text() NULL DEFAULT ''
-    public $activa; ///< Indica si la cuenta se puede o no usar: boolean() NOT NULL DEFAULT 'true'
+    public $contribuyente; ///< integer(32) NOT NULL DEFAULT '' PK FK:lce_cuenta_clasificacion.contribuyente
+    public $codigo; ///< character varying(20) NOT NULL DEFAULT '' PK
+    public $cuenta; ///< character varying(120) NOT NULL DEFAULT ''
+    public $clasificacion; ///< character varying(10) NOT NULL DEFAULT '' FK:lce_cuenta_clasificacion.contribuyente
+    public $oficial; ///< character varying(16) NULL DEFAULT '' FK:lce_cuenta_oficial.codigo
+    public $descripcion; ///< text() NULL DEFAULT ''
+    public $cargos; ///< text() NULL DEFAULT ''
+    public $abonos; ///< text() NULL DEFAULT ''
+    public $saldo_deudor; ///< text() NULL DEFAULT ''
+    public $saldo_acreedor; ///< text() NULL DEFAULT ''
+    public $activa; ///< boolean() NOT NULL DEFAULT 'true'
     public $codigo_otro; ///< character varying(16) NULL DEFAULT ''
 
     // Información de las columnas de la tabla en la base de datos
     public static $columnsInfo = array(
         'contribuyente' => array(
             'name'      => 'Contribuyente',
-            'comment'   => 'RUT del contribuyente sin DV',
+            'comment'   => '',
             'type'      => 'integer',
             'length'    => 32,
             'null'      => false,
             'default'   => '',
             'auto'      => false,
             'pk'        => true,
-            'fk'        => array('table' => 'contribuyente', 'column' => 'rut')
+            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'contribuyente')
         ),
         'codigo' => array(
             'name'      => 'Código',
-            'comment'   => 'Código de la cuenta (recomendado jerárquico)',
+            'comment'   => '',
             'type'      => 'character varying',
             'length'    => 20,
             'null'      => false,
@@ -79,7 +78,7 @@ class Model_LceCuenta extends \Model_App
         ),
         'cuenta' => array(
             'name'      => 'Cuenta',
-            'comment'   => 'Nombre corto de la cuenta',
+            'comment'   => '',
             'type'      => 'character varying',
             'length'    => 120,
             'null'      => false,
@@ -90,32 +89,21 @@ class Model_LceCuenta extends \Model_App
         ),
         'clasificacion' => array(
             'name'      => 'Clasificación',
-            'comment'   => 'Clasificación de la cuenta (Activo, Pasivo, Patrimonio o Resultado)',
+            'comment'   => '',
             'type'      => 'character varying',
-            'length'    => 3,
+            'length'    => 10,
             'null'      => false,
             'default'   => '',
             'auto'      => false,
             'pk'        => false,
-            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'codigo')
-        ),
-        'subclasificacion' => array(
-            'name'      => 'Subclasificacion',
-            'comment'   => 'Clasificación dentro de las de mayor jerarquía, por ejemplo Activo Circulante',
-            'type'      => 'character varying',
-            'length'    => 3,
-            'null'      => false,
-            'default'   => '',
-            'auto'      => false,
-            'pk'        => false,
-            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'codigo')
+            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'contribuyente')
         ),
         'oficial' => array(
             'name'      => 'Oficial',
-            'comment'   => 'Correspondencia de esta cuenta con una cuenta oficial del SII (para confección de diccionario de cuentas)',
+            'comment'   => '',
             'type'      => 'character varying',
             'length'    => 16,
-            'null'      => false,
+            'null'      => true,
             'default'   => '',
             'auto'      => false,
             'pk'        => false,
@@ -123,10 +111,10 @@ class Model_LceCuenta extends \Model_App
         ),
         'descripcion' => array(
             'name'      => 'Descripción',
-            'comment'   => 'Descripción de la cuenta',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
-            'null'      => false,
+            'null'      => true,
             'default'   => '',
             'auto'      => false,
             'pk'        => false,
@@ -134,7 +122,7 @@ class Model_LceCuenta extends \Model_App
         ),
         'cargos' => array(
             'name'      => 'Cargos',
-            'comment'   => 'Cuando se debe hacer un cargo a la cuenta',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
             'null'      => true,
@@ -145,7 +133,7 @@ class Model_LceCuenta extends \Model_App
         ),
         'abonos' => array(
             'name'      => 'Abonos',
-            'comment'   => 'Cuando se debe hacer un abono a la cuenta',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
             'null'      => true,
@@ -156,7 +144,7 @@ class Model_LceCuenta extends \Model_App
         ),
         'saldo_deudor' => array(
             'name'      => 'Saldo Deudor',
-            'comment'   => 'Que representa el saldo deudor de la cuenta',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
             'null'      => true,
@@ -167,7 +155,7 @@ class Model_LceCuenta extends \Model_App
         ),
         'saldo_acreedor' => array(
             'name'      => 'Saldo Acreedor',
-            'comment'   => 'Que representa el saldo acreedor de la cuenta',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
             'null'      => true,
@@ -178,7 +166,7 @@ class Model_LceCuenta extends \Model_App
         ),
         'activa' => array(
             'name'      => 'Activa',
-            'comment'   => 'Indica si la cuenta se puede o no usar',
+            'comment'   => '',
             'type'      => 'boolean',
             'length'    => null,
             'null'      => false,
@@ -188,7 +176,7 @@ class Model_LceCuenta extends \Model_App
             'fk'        => null
         ),
         'codigo_otro' => array(
-            'name'      => 'Otro',
+            'name'      => 'Otro código',
             'comment'   => '',
             'type'      => 'character varying',
             'length'    => 16,
@@ -202,11 +190,11 @@ class Model_LceCuenta extends \Model_App
     );
 
     // Comentario de la tabla en la base de datos
-    public static $tableComment = 'Plan de cuentas de la empresa (por ejemplo plan de cuentas MiPyme SII)';
+    public static $tableComment = '';
 
     public static $fkNamespace = array(
         'Model_Contribuyente' => 'website\Dte',
-        'Model_LceCuentaClasificacion' => 'website\Lce\Admin\Mantenedores',
+        'Model_LceCuentaClasificacion' => 'website\Lce',
         'Model_LceCuentaOficial' => 'website\Lce\Admin\Mantenedores'
     ); ///< Namespaces que utiliza esta clase
 
@@ -222,6 +210,26 @@ class Model_LceCuenta extends \Model_App
             FROM lce_asiento_detalle
             WHERE contribuyente = :contribuyente AND cuenta = :cuenta
         ', [':contribuyente'=>$this->contribuyente, ':cuenta'=>$this->codigo]);
+    }
+
+    /**
+     * Entrega el objeto de la clasificación superior
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-05
+     */
+    public function getClasificacion()
+    {
+        return (new Model_LceCuentaClasificaciones)->get($this->contribuyente, $this->clasificacion);
+    }
+
+    /**
+     * Entrega el objeto de la clasificación superior
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-05
+     */
+    public function getLceCuentaClasificacion()
+    {
+        return $this->getClasificacion();
     }
 
 }

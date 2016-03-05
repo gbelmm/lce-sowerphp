@@ -22,14 +22,14 @@
  */
 
 // namespace del modelo
-namespace website\Lce\Admin\Mantenedores;
+namespace website\Lce;
 
 /**
  * Clase para mapear la tabla lce_cuenta_clasificacion de la base de datos
- * Comentario de la tabla: Clasificación y subclasificación de cuentas contables
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un registro de la tabla lce_cuenta_clasificacion
  * @author SowerPHP Code Generator
- * @version 2016-02-08 01:44:34
+ * @version 2016-03-04 22:54:48
  */
 class Model_LceCuentaClasificacion extends \Model_App
 {
@@ -39,18 +39,30 @@ class Model_LceCuentaClasificacion extends \Model_App
     protected $_table = 'lce_cuenta_clasificacion'; ///< Tabla del modelo
 
     // Atributos de la clase (columnas en la base de datos)
-    public $codigo; ///< Código de la clasificación: character varying(3) NOT NULL DEFAULT '' PK
-    public $clasificacion; ///< Nombre de la clasificación: character varying(50) NOT NULL DEFAULT ''
-    public $superior; ///< Clasificación superior en caso de tener una: character varying(3) NULL DEFAULT '' FK:lce_cuenta_clasificacion.codigo
-    public $descripcion; ///< Descripción de la clasificación (tipo de cuentas que contiene): text() NULL DEFAULT ''
+    public $contribuyente; ///< integer(32) NOT NULL DEFAULT '' PK FK:lce_cuenta_clasificacion.contribuyente
+    public $codigo; ///< character varying(10) NOT NULL DEFAULT '' PK
+    public $clasificacion; ///< character varying(50) NOT NULL DEFAULT ''
+    public $superior; ///< character varying(10) NULL DEFAULT '' FK:lce_cuenta_clasificacion.contribuyente
+    public $descripcion; ///< text() NULL DEFAULT ''
 
     // Información de las columnas de la tabla en la base de datos
     public static $columnsInfo = array(
+        'contribuyente' => array(
+            'name'      => 'Contribuyente',
+            'comment'   => '',
+            'type'      => 'integer',
+            'length'    => 32,
+            'null'      => false,
+            'default'   => '',
+            'auto'      => false,
+            'pk'        => true,
+            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'contribuyente')
+        ),
         'codigo' => array(
             'name'      => 'Codigo',
-            'comment'   => 'Código de la clasificación',
+            'comment'   => '',
             'type'      => 'character varying',
-            'length'    => 3,
+            'length'    => 10,
             'null'      => false,
             'default'   => '',
             'auto'      => false,
@@ -59,7 +71,7 @@ class Model_LceCuentaClasificacion extends \Model_App
         ),
         'clasificacion' => array(
             'name'      => 'Clasificacion',
-            'comment'   => 'Nombre de la clasificación',
+            'comment'   => '',
             'type'      => 'character varying',
             'length'    => 50,
             'null'      => false,
@@ -70,18 +82,18 @@ class Model_LceCuentaClasificacion extends \Model_App
         ),
         'superior' => array(
             'name'      => 'Superior',
-            'comment'   => 'Clasificación superior en caso de tener una',
+            'comment'   => '',
             'type'      => 'character varying',
-            'length'    => 3,
+            'length'    => 10,
             'null'      => true,
             'default'   => '',
             'auto'      => false,
             'pk'        => false,
-            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'codigo')
+            'fk'        => array('table' => 'lce_cuenta_clasificacion', 'column' => 'contribuyente')
         ),
         'descripcion' => array(
             'name'      => 'Descripcion',
-            'comment'   => 'Descripción de la clasificación (tipo de cuentas que contiene)',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
             'null'      => true,
@@ -94,16 +106,55 @@ class Model_LceCuentaClasificacion extends \Model_App
     );
 
     // Comentario de la tabla en la base de datos
-    public static $tableComment = 'Clasificación y subclasificación de cuentas contables';
+    public static $tableComment = '';
 
     public static $fkNamespace = array(
-        'Model_LceCuentaClasificacion' => 'website\Lce\Admin\Mantenedores'
+        'Model_LceCuentaClasificacion' => 'website\Lce',
     ); ///< Namespaces que utiliza esta clase
 
-    public function __construct($codigo = null)
+    /**
+     * Constructor de la clase
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-04
+     */
+    public function __construct($contribuyente = null, $codigo = null)
     {
-        parent::__construct($codigo);
+        parent::__construct($contribuyente, $codigo);
         $this->lce_cuenta_clasificacion = &$this->clasificacion;
+    }
+
+    /**
+     * Método que indica si la clasificación está o no siendo usada en alguna cuenta
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-04
+     */
+    public function enUso()
+    {
+        return (bool)$this->db->getValue('
+            SELECT COUNT(*)
+            FROM lce_cuenta
+            WHERE contribuyente = :contribuyente AND clasificacion = :clasificacion
+        ', [':contribuyente'=>$this->contribuyente, ':clasificacion'=>$this->codigo]);
+    }
+
+    /**
+     * Entrega el objeto de la clasificación superior
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-05
+     */
+    public function getSuperior()
+    {
+        return (new Model_LceCuentaClasificaciones)->get($this->contribuyente, $this->superior);
+    }
+
+    /**
+     * Entrega el objeto de la clasificación superior
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-04
+     */
+    public function getLceCuentaClasificacion()
+    {
+        return $this->getSuperior();
     }
 
 }

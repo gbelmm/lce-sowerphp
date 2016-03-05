@@ -52,7 +52,7 @@ if (isset($asientos)) :
                     </button>
                     <ul class="dropdown-menu slidedown">
                         <li>
-                            <a href="<?=$_base?>/lce/lce_asientos/editar/<?=$a['asiento']?>" target="_blank">
+                            <a href="<?=$_base?>/lce/lce_asientos/editar/<?=substr($a['fecha'],0,4)?>/<?=$a['asiento']?>" target="_blank">
                                 <i class="fa fa-edit fa-fw"></i> Editar asiento
                             </a>
                         </li>

@@ -1,11 +1,17 @@
 <ul class="nav nav-pills pull-right">
     <li>
-        <a href="<?=$_base?>/lce/lce_asientos/ordenar<?=$listarFilterUrl?>" title="Ordenar asientos">
-            <span class="fa fa-sort-numeric-asc"></span> Ordenar asientos
+        <a href="<?=$_base?>/lce/lce_cuentas/listar" title="Volver al plan de cuentas contables">
+            Volver al plan de cuentas
+        </a>
+    </li>
+    <li>
+        <a href="<?=$_base?>/lce/lce_cuenta_clasificaciones/importar" title="Importar clasificaciones de cuentas contables desde archivo CSV">
+            <span class="fa fa-upload"></span> Importar CSV
         </a>
     </li>
 </ul>
-<h1>Registro de asientos contables</h1>
+<h1>Mantenedor de clasificaciones de cuentas contables</h1>
+<p><?=$comment?></p>
 <?php
 // preparar títulos de columnas (con link para ordenar por dicho campo)
 $titles = [];
@@ -38,16 +44,8 @@ foreach ($columns as $column => &$info) {
     }
     // si es llave foránea
     else if ($info['fk']) {
-        $class = 'Model_'.\sowerphp\core\Utility_Inflector::camelize(
-            $info['fk']['table']
-        );
-        $classs = $fkNamespace[$class].'\Model_'.\sowerphp\core\Utility_Inflector::camelize(
-            \sowerphp\core\Utility_Inflector::pluralize($info['fk']['table'])
-        );
-        $objs = new $classs();
-        $options = $objs->getList();
-        array_unshift($options, array('', 'Seleccione una opción'));
-        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $options, 'value' => (isset($search[$column])?$search[$column]:'')));
+        array_unshift($clasificaciones, array('', 'Seleccione una opción'));
+        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $clasificaciones, 'value' => (isset($search[$column])?$search[$column]:'')));
     }
     // si es un tipo de dato de fecha o fecha con hora se muestra un input para fecha
     else if (in_array($info['type'], ['date', 'timestamp', 'timestamp without time zone'])) {
@@ -91,8 +89,8 @@ foreach ($Objs as &$obj) {
             $row[] = $obj->{$column};
         }
     }
-    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$obj->periodo.'/'.$obj->asiento.$listarFilterUrl.'" title="Editar"><span class="fa fa-edit btn btn-default"></span></a>';
-    $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$obj->periodo.'/'.$obj->asiento.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.$obj->periodo.', '.$obj->asiento.'\')"><span class="fa fa-remove btn btn-default"></span></a>';
+    $actions = '<a href="'.$_base.$module_url.$controller.'/editar/'.$obj->codigo.$listarFilterUrl.'" title="Editar"><span class="fa fa-edit btn btn-default"></span></a>';
+    $actions .= ' <a href="'.$_base.$module_url.$controller.'/eliminar/'.$obj->codigo.$listarFilterUrl.'" title="Eliminar" onclick="return eliminar(\''.$model.'\', \''.$obj->codigo.'\')"><span class="fa fa-remove btn btn-default"></span></a>';
     $row[] = $actions;
     $data[] = $row;
 }

@@ -1,5 +1,15 @@
 <ul class="nav nav-pills pull-right">
     <li>
+        <a href="<?=$_base?>/lce/lce_cuenta_clasificaciones/listar" title="Clasificaciones de las cuentas contables">
+            <span class="fa fa-list"></span> Clasificaciones
+        </a>
+    </li>
+    <li>
+        <a href="<?=$_base?>/lce/lce_cuentas/migrar" title="Migrar códigos de cuentas contables">
+            <span class="fa fa-exchange"></span> Migrar códigos
+        </a>
+    </li>
+    <li>
         <a href="<?=$_base?>/lce/lce_cuentas/importar" title="Importar plan de cuentas contables desde archivo CSV">
             <span class="fa fa-upload"></span> Importar CSV
         </a>
@@ -39,16 +49,8 @@ foreach ($columns as $column => &$info) {
     }
     // si es llave foránea
     else if ($info['fk']) {
-        $class = 'Model_'.\sowerphp\core\Utility_Inflector::camelize(
-            $info['fk']['table']
-        );
-        $classs = $fkNamespace[$class].'\Model_'.\sowerphp\core\Utility_Inflector::camelize(
-            \sowerphp\core\Utility_Inflector::pluralize($info['fk']['table'])
-        );
-        $objs = new $classs();
-        $options = $objs->getList();
-        array_unshift($options, array('', 'Seleccione una opción'));
-        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $options, 'value' => (isset($search[$column])?$search[$column]:'')));
+        array_unshift($clasificaciones, array('', 'Seleccione una opción'));
+        $row[] = $form->input(array('type'=>'select', 'name'=>$column, 'options' => $clasificaciones, 'value' => (isset($search[$column])?$search[$column]:'')));
     }
     // si es un tipo de dato de fecha o fecha con hora se muestra un input para fecha
     else if (in_array($info['type'], ['date', 'timestamp', 'timestamp without time zone'])) {

@@ -26,10 +26,10 @@ namespace website\Lce;
 
 /**
  * Clase para mapear la tabla lce_asiento de la base de datos
- * Comentario de la tabla: Cabecera de los asientos contables
+ * Comentario de la tabla:
  * Esta clase permite trabajar sobre un registro de la tabla lce_asiento
  * @author SowerPHP Code Generator
- * @version 2016-03-03 23:08:52
+ * @version 2016-03-04 22:54:48
  */
 class Model_LceAsiento extends \Model_App
 {
@@ -39,11 +39,12 @@ class Model_LceAsiento extends \Model_App
     protected $_table = 'lce_asiento'; ///< Tabla del modelo
 
     // Atributos de la clase (columnas en la base de datos)
-    public $contribuyente; ///< RUT del contribuyente sin DV: integer(32) NOT NULL DEFAULT '' PK FK:contribuyente.rut
-    public $periodo; ///< Año de la fecha del asiento: smallint(16) NOT NULL DEFAULT '' PK
-    public $asiento; ///< Número del asiento dentro del periodo: integer(32) NOT NULL DEFAULT '' PK
-    public $fecha; ///< Fecha del hecho económico que se está registrando: date() NOT NULL DEFAULT ''
-    public $glosa; ///< Glosa o descripción del hecho económico: text() NOT NULL DEFAULT ''
+    public $contribuyente; ///< integer(32) NOT NULL DEFAULT '' PK FK:contribuyente.rut
+    public $periodo; ///< smallint(16) NOT NULL DEFAULT '' PK
+    public $asiento; ///< integer(32) NOT NULL DEFAULT '' PK
+    public $fecha; ///< date() NOT NULL DEFAULT ''
+    public $glosa; ///< text() NOT NULL DEFAULT ''
+    public $tipo; ///< character(1) NOT NULL DEFAULT 'A'
     public $json; ///< boolean() NOT NULL DEFAULT 'false'
     public $anulado; ///< boolean() NOT NULL DEFAULT 'false'
     public $creado; ///< timestamp without time zone() NOT NULL DEFAULT 'now()'
@@ -54,7 +55,7 @@ class Model_LceAsiento extends \Model_App
     public static $columnsInfo = array(
         'contribuyente' => array(
             'name'      => 'Contribuyente',
-            'comment'   => 'RUT del contribuyente sin DV',
+            'comment'   => '',
             'type'      => 'integer',
             'length'    => 32,
             'null'      => false,
@@ -65,7 +66,7 @@ class Model_LceAsiento extends \Model_App
         ),
         'periodo' => array(
             'name'      => 'Período',
-            'comment'   => 'Año de la fecha del asiento',
+            'comment'   => '',
             'type'      => 'smallint',
             'length'    => 16,
             'null'      => false,
@@ -76,7 +77,7 @@ class Model_LceAsiento extends \Model_App
         ),
         'asiento' => array(
             'name'      => 'Asiento',
-            'comment'   => 'Número del asiento dentro del periodo',
+            'comment'   => '',
             'type'      => 'integer',
             'length'    => 32,
             'null'      => false,
@@ -87,7 +88,7 @@ class Model_LceAsiento extends \Model_App
         ),
         'fecha' => array(
             'name'      => 'Fecha',
-            'comment'   => 'Fecha del hecho económico que se está registrando',
+            'comment'   => '',
             'type'      => 'date',
             'length'    => null,
             'null'      => false,
@@ -98,11 +99,22 @@ class Model_LceAsiento extends \Model_App
         ),
         'glosa' => array(
             'name'      => 'Glosa',
-            'comment'   => 'Glosa o descripción del hecho económico',
+            'comment'   => '',
             'type'      => 'text',
             'length'    => null,
             'null'      => false,
             'default'   => '',
+            'auto'      => false,
+            'pk'        => false,
+            'fk'        => null
+        ),
+        'tipo' => array(
+            'name'      => 'Tipo',
+            'comment'   => '',
+            'type'      => 'character',
+            'length'    => 1,
+            'null'      => false,
+            'default'   => 'A',
             'auto'      => false,
             'pk'        => false,
             'fk'        => null
@@ -166,7 +178,7 @@ class Model_LceAsiento extends \Model_App
     );
 
     // Comentario de la tabla en la base de datos
-    public static $tableComment = 'Cabecera de los asientos contables';
+    public static $tableComment = '';
 
     public static $fkNamespace = array(
         'Model_Contribuyente' => 'website\Dte',
@@ -176,7 +188,7 @@ class Model_LceAsiento extends \Model_App
     /**
      * Método que guarda la cabecera del asiento
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2016-03-03
+     * @version 2016-03-04
      */
     public function save()
     {
@@ -194,6 +206,9 @@ class Model_LceAsiento extends \Model_App
         }
         if ($this->asiento) {
             $this->modificado = date('Y-m-d H:i:s');
+        }
+        if (!$this->tipo) {
+            $this->tipo = 'A';
         }
         // probar si puede ser objeto o arreglo, si lo es se codifica
         if (is_object($this->glosa) or is_array($this->glosa)) {

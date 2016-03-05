@@ -175,4 +175,34 @@ class Controller_LceAsientos extends \Controller_Maintainer
         parent::eliminar($Contribuyente->rut, $periodo, $asiento);
     }
 
+    /**
+     * Acción para ordenar los asientos de un período (año)
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
+     * @version 2016-03-05
+     */
+    public function ordenar()
+    {
+        $Contribuyente = $this->getContribuyente();
+        $Asientos = (new Model_LceAsientos())->setContribuyente($Contribuyente->rut);
+        $filterListar = !empty($_GET['listar']) ? base64_decode($_GET['listar']) : '';
+        $this->set([
+            'filterListar' => $filterListar ,
+            'periodos' => $Asientos->getPeriodos(),
+        ]);
+        if (!empty($_POST['periodo'])) {
+            if ($Asientos->ordenar($_POST['periodo'])) {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'Asientos del período '.$_POST['periodo'].' ordenados', 'ok'
+                );
+            } else {
+                \sowerphp\core\Model_Datasource_Session::message(
+                    'No fue posible ordenar los asientos del período '.$_POST['periodo'], 'error'
+                );
+            }
+            $this->redirect(
+                $this->module_url.$this->request->params['controller'].'/listar'.$filterListar
+            );
+        }
+    }
+
 }

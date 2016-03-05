@@ -20,22 +20,22 @@ echo $f->input([
 ]);
 echo $f->input([
     'type' => 'select',
-    'name' => 'clasificacion',
-    'label' => 'Clasificación',
+    'name' => 'principal',
+    'label' => 'Principal',
     'options' => $clasificaciones,
-    'value' => isset($Obj) ? $Obj->clasificacion : '',
+    'value' => isset($Obj) ? $Obj->clasificacion[0] : '',
     'check' => 'notempty',
     'help' => 'Clasificación principal de la cuenta',
     'attr' => 'onchange="clasificacion_procesar()"'
 ]);
 echo $f->input([
     'type' => 'select',
-    'name' => 'subclasificacion',
-    'label' => 'Subclasificación',
-    'options' => [''=>'Seleccione una subclasificación'],
-    'value' => isset($Obj) ? $Obj->subclasificacion : '',
+    'name' => 'clasificacion',
+    'label' => 'Clasificación',
+    'options' => [''=>'Seleccione una clasificación'],
+    'value' => isset($Obj) ? $Obj->clasificacion : '',
     'check' => 'notempty',
-    'help' => 'Subclasificación de la cuenta dentro de la principal',
+    'help' => 'Clasificación de la cuenta',
 ]);
 echo $f->input([
     'type' => 'select',
@@ -43,7 +43,6 @@ echo $f->input([
     'label' => 'Cuenta SII',
     'options' => [''=>'No tiene cuenta oficial asociada'],
     'value' => isset($Obj) ? $Obj->oficial : '',
-    'check' => 'notempty',
     'help' => 'Cuenta oficial del SII que se mapea a esta cuenta',
 ]);
 echo $f->input([
@@ -51,7 +50,6 @@ echo $f->input([
     'name' => 'descripcion',
     'label' => 'Descripción',
     'value' => isset($Obj) ? $Obj->descripcion : '',
-    'check' => 'notempty',
     'help' => 'Descripción general de la cuenta contable',
 ]);
 echo $f->input([
@@ -105,17 +103,17 @@ echo $f->end('Guardar');
     <a href="<?=$_base.$listarUrl?>">Volver al listado de cuentas contables</a>
 </div>
 <script>
-var subclasificaciones = <?=json_encode($subclasificaciones)?>;
+var clasificaciones = <?=json_encode($subclasificaciones)?>;
 var oficiales = <?=json_encode($oficiales)?>;
 function clasificacion_procesar() {
-    Form.addOptions("subclasificacionField", subclasificaciones, document.getElementById("clasificacionField").value);
-    Form.addOptions("oficialField", oficiales, document.getElementById("clasificacionField").value);
+    Form.addOptions("clasificacionField", clasificaciones, document.getElementById("principalField").value);
+    Form.addOptions("oficialField", oficiales, document.getElementById("principalField").value);
 <?php if (isset($Obj)) : ?>
-    document.getElementById("subclasificacionField").value = '<?=$Obj->subclasificacion?>';
+    document.getElementById("clasificacionField").value = '<?=$Obj->clasificacion?>';
     document.getElementById("oficialField").value = '<?=$Obj->oficial?>';
 <?php else : ?>
-<?php if (isset($_POST['subclasificacion'])): ?>
-    document.getElementById("subclasificacionField").value = '<?=$_POST['subclasificacion']?>';
+<?php if (isset($_POST['clasificacion'])): ?>
+    document.getElementById("clasificacionField").value = '<?=$_POST['clasificacion']?>';
 <?php endif; ?>
 <?php if (isset($_POST['oficial'])): ?>
     document.getElementById("oficialField").value = '<?=$_POST['oficial']?>';

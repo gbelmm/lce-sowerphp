@@ -28,9 +28,4 @@ Configure::write('nav.module', array(
         'desc' => 'Plan de cuentas oficial del SII',
         'icon' => 'fa fa-list',
     ],
-    '/lce_cuenta_clasificaciones/listar/1/codigo/A' => [
-        'name' => 'Clasificación de cuentas',
-        'desc' => 'Clasificación oficial del SII de las cuentas',
-        'icon' => 'fa fa-list-alt',
-    ],
 ));
